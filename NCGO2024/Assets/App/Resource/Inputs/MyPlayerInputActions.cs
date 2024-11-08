@@ -35,6 +35,33 @@ public partial class @MyPlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Jumping"",
+                    ""type"": ""Button"",
+                    ""id"": ""30038466-15f4-4bde-bc0d-a858162c3d13"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Press"",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Punching"",
+                    ""type"": ""Button"",
+                    ""id"": ""a6784a4c-b5d8-41d0-8cff-7ed8d839ca49"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Sprinting"",
+                    ""type"": ""Button"",
+                    ""id"": ""88eae1fe-637d-460f-86b5-8a90614e9052"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -92,6 +119,39 @@ public partial class @MyPlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Movement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""76b0641f-9a62-45cc-a08f-c29e58bcd48f"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": ""Press"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Jumping"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""593a3d5f-0b74-40ff-927c-9afa4cf80fa1"",
+                    ""path"": ""<Keyboard>/z"",
+                    ""interactions"": ""Press"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Punching"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c1fbc345-89b0-47d8-be74-ac88c244b191"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": ""Press"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Sprinting"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -617,6 +677,9 @@ public partial class @MyPlayerInputActions: IInputActionCollection2, IDisposable
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Movement = m_Player.FindAction("Movement", throwIfNotFound: true);
+        m_Player_Jumping = m_Player.FindAction("Jumping", throwIfNotFound: true);
+        m_Player_Punching = m_Player.FindAction("Punching", throwIfNotFound: true);
+        m_Player_Sprinting = m_Player.FindAction("Sprinting", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -691,11 +754,17 @@ public partial class @MyPlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Player;
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Movement;
+    private readonly InputAction m_Player_Jumping;
+    private readonly InputAction m_Player_Punching;
+    private readonly InputAction m_Player_Sprinting;
     public struct PlayerActions
     {
         private @MyPlayerInputActions m_Wrapper;
         public PlayerActions(@MyPlayerInputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Movement => m_Wrapper.m_Player_Movement;
+        public InputAction @Jumping => m_Wrapper.m_Player_Jumping;
+        public InputAction @Punching => m_Wrapper.m_Player_Punching;
+        public InputAction @Sprinting => m_Wrapper.m_Player_Sprinting;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -708,6 +777,15 @@ public partial class @MyPlayerInputActions: IInputActionCollection2, IDisposable
             @Movement.started += instance.OnMovement;
             @Movement.performed += instance.OnMovement;
             @Movement.canceled += instance.OnMovement;
+            @Jumping.started += instance.OnJumping;
+            @Jumping.performed += instance.OnJumping;
+            @Jumping.canceled += instance.OnJumping;
+            @Punching.started += instance.OnPunching;
+            @Punching.performed += instance.OnPunching;
+            @Punching.canceled += instance.OnPunching;
+            @Sprinting.started += instance.OnSprinting;
+            @Sprinting.performed += instance.OnSprinting;
+            @Sprinting.canceled += instance.OnSprinting;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -715,6 +793,15 @@ public partial class @MyPlayerInputActions: IInputActionCollection2, IDisposable
             @Movement.started -= instance.OnMovement;
             @Movement.performed -= instance.OnMovement;
             @Movement.canceled -= instance.OnMovement;
+            @Jumping.started -= instance.OnJumping;
+            @Jumping.performed -= instance.OnJumping;
+            @Jumping.canceled -= instance.OnJumping;
+            @Punching.started -= instance.OnPunching;
+            @Punching.performed -= instance.OnPunching;
+            @Punching.canceled -= instance.OnPunching;
+            @Sprinting.started -= instance.OnSprinting;
+            @Sprinting.performed -= instance.OnSprinting;
+            @Sprinting.canceled -= instance.OnSprinting;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -853,6 +940,9 @@ public partial class @MyPlayerInputActions: IInputActionCollection2, IDisposable
     public interface IPlayerActions
     {
         void OnMovement(InputAction.CallbackContext context);
+        void OnJumping(InputAction.CallbackContext context);
+        void OnPunching(InputAction.CallbackContext context);
+        void OnSprinting(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {
