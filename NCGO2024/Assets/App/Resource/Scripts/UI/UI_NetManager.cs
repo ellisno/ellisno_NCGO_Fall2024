@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.UI;
+using System;
 public class UI_NetManager : NetworkBehaviour
 {
     [SerializeField] private Button _serverBtn, _clientBtn, _hostBtn, _startBtn;
 
-    [SerializeField] private GameObject _connectionBtnGroup;
+    [SerializeField] private GameObject _connectionBtnGroup, _socialPanel;
     [SerializeField] private SpawnController _mySpawnController;
 
     
@@ -48,7 +49,16 @@ public class UI_NetManager : NetworkBehaviour
         if (IsServer)
         {
             _mySpawnController.SpawnAllPlayers();
+            
             _startBtn.gameObject.SetActive(false);
+
+            HideGUIRpc();
         }
+    }
+
+    [Rpc(target:SendTo.Everyone)]
+    private void HideGUIRpc()
+    {
+        _socialPanel.gameObject.SetActive(false);
     }
 }
