@@ -188,7 +188,7 @@ public class LobbyManager : NetworkBehaviour
             if (playerData._clientID == kickTarget)
             {
 
-                //_networkPlayers._allConnectedPlayers.Remove(playerData);
+                _networkPlayers._allConnectedPlayers.Remove(playerData);
 
                 KickedClientRPC(RpcTarget.Single(kickTarget, RpcTargetUse.Temp));
 
