@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.Netcode.Components;
+using App.Resource.Scripts.Obj;
 
 public class ServerPlayerMovement : NetworkBehaviour
 {
@@ -10,10 +11,13 @@ public class ServerPlayerMovement : NetworkBehaviour
     [SerializeField] private Transform _pTransform;
     [SerializeField] private NetworkAnimator _myNetworkAnimator;
     [SerializeField] private Animator _myAnimator;
+    [SerializeField] private BulletSpawner _bulletSpawner;
 
     public CharacterController _CC;
 
     private MyPlayerInputActions _playerInput;
+    Vector3 _moveDirection = new Vector3(x:0,y:0f,z:0);
+
     // Start is called before the first frame update
     void Start()
     {
@@ -53,13 +57,18 @@ public class ServerPlayerMovement : NetworkBehaviour
             MoveServerRPc(moveInput, isPunching, isSprinting, isJumping);
         }
 
+        if (isPunching) {
+
+            _bulletSpawner.FireProjectileRpc();
+        }
+
     }
 
-    private void Move(Vector2 _input, bool isPunching, bool isSprinting, bool isJumping)
+    private void Move(Vector2 input, bool isPunching, bool isSprinting, bool isJumping)
     {
-        Vector3 _moveDirection = _input.x * _pTransform.right + _input.y * _pTransform.up;
+         _moveDirection = new Vector3(input.x, y:0f, z:input.y);
 
-        _myAnimator.SetBool(name: "IsWalking", value: _input.x != 0 || _input.y != 0);
+        _myAnimator.SetBool(name: "IsWalking", value: input.x != 0 || input.y != 0);
 
         if (isJumping) _myNetworkAnimator.SetTrigger("JumpTrigger");
 
@@ -69,14 +78,18 @@ public class ServerPlayerMovement : NetworkBehaviour
 
         _myAnimator.SetBool(name: "IsSprinting", isSprinting);
 
+        if(input.x == 0f && input.y == 0f) return;
+
         if (isSprinting)
         {
-            _CC.Move(motion: _moveDirection * (_pSpeed * 1.3f) * Time.deltaTime);
+            _CC.Move(motion: _moveDirection * (_pSpeed * 1.3f * Time.deltaTime));
         }
         else
         {
-            _CC.Move(motion: _moveDirection * _pSpeed * Time.deltaTime);
+            _CC.Move(motion: _moveDirection * (_pSpeed * Time.deltaTime));
         }
+
+        transform.forward = _moveDirection;
     }
 
     [Rpc(target:SendTo.Server)]
